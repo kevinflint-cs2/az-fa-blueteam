@@ -1,0 +1,74 @@
+[project]
+name = "az-fa-blueteam"
+version = "0.1.0"
+description = "Lightweight Azure Function App (Python) that provides on-demand blue-team enrichment endpoints — AbuseIPDB, URL reputation (Web of Trust), VirusTotal, and other public-API lookups — to accelerate triage, hunting, and automation."
+authors = [
+    {name = "Kevin Flint",email = "kevin.flint@cybersecuritysquared.com"}
+]
+license = {text = "MIT"}
+readme = "README.md"
+requires-python = ">=3.11,<4.0"
+dependencies = [
+    "azure-functions (>=1.24.0,<2.0.0)"
+]
+
+[tool.poetry]
+package-mode = false    
+
+[build-system]
+requires = ["poetry-core>=2.0.0,<3.0.0"]
+build-backend = "poetry.core.masonry.api"
+
+[dependency-groups]
+dev = [
+    "ruff (>=0.14.0,<0.15.0)",
+    "mypy (>=1.18.2,<2.0.0)",
+    "pytest (>=8.4.2,<9.0.0)",
+    "commitizen (>=4.9.1,<5.0.0)",
+    "poethepoet (>=0.37.0,<0.38.0)"
+]
+
+[tool.ruff]
+line-length = 88
+
+[tool.ruff.lint]
+select = ["E", "F", "W", "C", "N"]
+extend-ignore = ["E203"]
+
+# mypy config
+[tool.mypy]
+python_version = "3.11"
+ignore_missing_imports = true
+follow_imports = "normal"
+
+# pytest settings
+[tool.pytest.ini_options]
+minversion = "7.0"
+addopts = "-q"
+testpaths = ["tests"]
+
+# commitizen config
+[tool.commitizen]
+name = "cz_conventional_commits"
+version = "0.1.0"
+
+# poethepoet tasks (poe)
+[tool.poe.tasks]
+
+# run ruff lint
+lint = "ruff check src tests"
+
+# fix formatting with ruff
+format = "ruff format src tests"
+
+# type checking
+typecheck = "mypy src"
+
+# tests
+test = "pytest -q"
+
+# run everything (lint -> typecheck -> test)
+ci = "poe lint && poe typecheck && poe test"
+
+# interactive commitizen commit (runs the cz commit UI)
+commit = "cz commit"
