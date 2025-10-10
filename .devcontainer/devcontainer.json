@@ -14,8 +14,5 @@
       ]
     }
   },
-  "postCreateCommand": "bash -lc \"set -euo pipefail; export PATH=/usr/local/bin:$PATH:/home/vscode/.local/bin; poetry --version || true; poetry config virtualenvs.in-project true --local || true; if [ -f pyproject.toml ]; then poetry install --no-interaction || echo 'poetry install failed'; else echo 'no pyproject.toml found'; fi; echo 'done postCreate'\"",
-  "remoteUser": "vscode",
-  "forwardPorts": [7071],
-  "workspaceFolder": "/workspaces/${localWorkspaceFolderBasename:-repo}"
+  "postCreateCommand": "bash -lc \"set -euo pipefail; export PATH=/usr/local/bin:$PATH:/home/vscode/.local/bin; poetry --version || true; poetry config virtualenvs.in-project true --local || true; if [ -f pyproject.toml ]; then poetry install --no-interaction || echo 'poetry install failed'; else echo 'no pyproject.toml found'; fi; echo 'done postCreate'\""
 }
