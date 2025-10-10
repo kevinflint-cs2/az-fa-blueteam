@@ -1,7 +1,8 @@
 {
   "IsEncrypted": false,
   "Values": {
-    "FUNCTIONS_WORKER_RUNTIME": "python",
-    "AzureWebJobsStorage": ""
+  "FUNCTIONS_WORKER_RUNTIME": "python",
+  "AzureWebJobsStorage": "",
+  "ABUSEIPDB_API_KEY": "e0f1f8047bf9818177633dd7db890c2add764ca8e0eb7f45fff8f6dc57f9dcd05449db766559b1c2"
   }
 }
