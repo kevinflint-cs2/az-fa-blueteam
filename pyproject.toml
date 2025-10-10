@@ -33,7 +33,7 @@ line-length = 88
 
 [tool.ruff.lint]
 select = ["E", "F", "W", "C", "N"]
-extend-ignore = ["E203"]
+extend-ignore = ["E203", "E501"]
 
 # mypy config
 [tool.mypy]
@@ -56,19 +56,19 @@ version = "0.1.0"
 [tool.poe.tasks]
 
 # run ruff lint
-lint = "ruff check src tests"
+lint = "ruff check src tests --fix"
 
 # fix formatting with ruff
 format = "ruff format src tests"
 
 # type checking
-typecheck = "mypy src"
+typecheck = "mypy src tests"
 
 # tests
 test = "pytest -q"
 
-# run everything (lint -> typecheck -> test)
-ci = "poe lint && poe typecheck && poe test"
-
 # interactive commitizen commit (runs the cz commit UI)
-commit = "cz commit"
+czcommit = "cz commit"
+gitadd = "git add ."
+
+commit = { sequence = ["gitadd", "czcommit"] }
