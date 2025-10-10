@@ -1,1 +1,50 @@
+# --- Git / Editor / Codespaces ---
+.git/
+.gitignore
+.gitattributes
+.editorconfig
+.vscode/
+.devcontainer/
+.codespaces/        # present on some Codespaces setups
 
+# --- Python env & build junk ---
+.venv/
+venv/
+env/
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.python-version
+build/
+dist/
+*.egg-info/
+.eggs/
+
+# --- Ruff / Mypy / Test caches ---
+.ruff_cache/
+.mypy_cache/
+.pytest_cache/
+.tox/
+.nox/
+.hypothesis/
+
+# --- Coverage artifacts ---
+.coverage
+.coverage.*
+htmlcov/
+coverage.xml
+
+# --- Logs & local env files ---
+*.log
+.env
+.env.*
+
+# --- Local-only Azure Functions files ---
+local.settings.json
+bin/
+obj/
+
+# --- Optional project content you likely don't need to deploy ---
+tests/
+docs/
