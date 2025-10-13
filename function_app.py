@@ -1,9 +1,104 @@
+
+
 import azure.functions as func
-from functions.helloworld import helloworld as helloworld_logic
-from functions.goodbye import goodbye as goodbye_logic
 from functions.abuseipdb import check_ip, report_ip
+from functions.alienvault import submit_url, submit_ip, submit_hash, submit_domain
 
 app = func.FunctionApp()
+
+# AlienVault: submit_url
+@app.route(route="alienvault/submit_url", auth_level=func.AuthLevel.FUNCTION)
+def alienvault_submit_url(req: func.HttpRequest) -> func.HttpResponse:
+    """
+    Azure Function HTTP trigger for submitting a URL to AlienVault OTX.
+    Expects 'url' as a query or JSON parameter.
+    """
+    url = req.params.get("url")
+    if not url:
+        try:
+            req_body = req.get_json()
+        except ValueError:
+            url = None
+        else:
+            url = req_body.get("url")
+    if not url:
+        return func.HttpResponse("Missing required parameter: url", status_code=400)
+    try:
+        result = submit_url(url)
+    except Exception as exc:
+        return func.HttpResponse(f"Error: {exc}", status_code=500)
+    return func.HttpResponse(str(result), mimetype="application/json")
+
+# AlienVault: submit_ip
+@app.route(route="alienvault/submit_ip", auth_level=func.AuthLevel.FUNCTION)
+def alienvault_submit_ip(req: func.HttpRequest) -> func.HttpResponse:
+    """
+    Azure Function HTTP trigger for submitting an IP to AlienVault OTX.
+    Expects 'ip' as a query or JSON parameter.
+    """
+    ip = req.params.get("ip")
+    if not ip:
+        try:
+            req_body = req.get_json()
+        except ValueError:
+            ip = None
+        else:
+            ip = req_body.get("ip")
+    if not ip:
+        return func.HttpResponse("Missing required parameter: ip", status_code=400)
+    try:
+        result = submit_ip(ip)
+    except Exception as exc:
+        return func.HttpResponse(f"Error: {exc}", status_code=500)
+    return func.HttpResponse(str(result), mimetype="application/json")
+
+# AlienVault: submit_hash
+@app.route(route="alienvault/submit_hash", auth_level=func.AuthLevel.FUNCTION)
+def alienvault_submit_hash(req: func.HttpRequest) -> func.HttpResponse:
+    """
+    Azure Function HTTP trigger for submitting a file hash to AlienVault OTX.
+    Expects 'file_hash' as a query or JSON parameter.
+    """
+    file_hash = req.params.get("file_hash")
+    if not file_hash:
+        try:
+            req_body = req.get_json()
+        except ValueError:
+            file_hash = None
+        else:
+            file_hash = req_body.get("file_hash")
+    if not file_hash:
+        return func.HttpResponse("Missing required parameter: file_hash", status_code=400)
+    try:
+        result = submit_hash(file_hash)
+    except Exception as exc:
+        return func.HttpResponse(f"Error: {exc}", status_code=500)
+    return func.HttpResponse(str(result), mimetype="application/json")
+
+# AlienVault: submit_domain
+@app.route(route="alienvault/submit_domain", auth_level=func.AuthLevel.FUNCTION)
+def alienvault_submit_domain(req: func.HttpRequest) -> func.HttpResponse:
+    """
+    Azure Function HTTP trigger for submitting a domain to AlienVault OTX.
+    Expects 'domain' as a query or JSON parameter.
+    """
+    domain = req.params.get("domain")
+    if not domain:
+        try:
+            req_body = req.get_json()
+        except ValueError:
+            domain = None
+        else:
+            domain = req_body.get("domain")
+    if not domain:
+        return func.HttpResponse("Missing required parameter: domain", status_code=400)
+    try:
+        result = submit_domain(domain)
+    except Exception as exc:
+        return func.HttpResponse(f"Error: {exc}", status_code=500)
+    return func.HttpResponse(str(result), mimetype="application/json")
+
+# AbuseIPDB: check
 @app.route(route="abuseipdb/check", auth_level=func.AuthLevel.FUNCTION)
 def abuseipdb_check(req: func.HttpRequest) -> func.HttpResponse:
     """
@@ -26,7 +121,7 @@ def abuseipdb_check(req: func.HttpRequest) -> func.HttpResponse:
         return func.HttpResponse(f"Error: {exc}", status_code=500)
     return func.HttpResponse(str(result), mimetype="application/json")
 
-
+# AbuseIPDB: report
 @app.route(route="abuseipdb/report", auth_level=func.AuthLevel.FUNCTION)
 def abuseipdb_report(req: func.HttpRequest) -> func.HttpResponse:
     """
@@ -52,36 +147,3 @@ def abuseipdb_report(req: func.HttpRequest) -> func.HttpResponse:
         return func.HttpResponse(f"Error: {exc}", status_code=500)
     return func.HttpResponse(str(result), mimetype="application/json")
 
-
-@app.route(route="helloworld", auth_level=func.AuthLevel.FUNCTION)
-def helloworld(req: func.HttpRequest) -> func.HttpResponse:
-    name = req.params.get("name")
-    if not name:
-        try:
-            req_body = req.get_json()
-        except ValueError:
-            name = None
-        else:
-            name = req_body.get("name")
-
-    if name:
-        return func.HttpResponse(helloworld_logic(name))
-    else:
-        return func.HttpResponse("Please provide a name parameter.", status_code=400)
-
-
-@app.route(route="goodbye", auth_level=func.AuthLevel.FUNCTION)
-def goodbye(req: func.HttpRequest) -> func.HttpResponse:
-    name = req.params.get("name")
-    if not name:
-        try:
-            req_body = req.get_json()
-        except ValueError:
-            name = None
-        else:
-            name = req_body.get("name")
-
-    if name:
-        return func.HttpResponse(goodbye_logic(name))
-    else:
-        return func.HttpResponse("Please provide a name parameter.", status_code=400)
