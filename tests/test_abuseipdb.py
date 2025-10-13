@@ -1,7 +1,10 @@
+
 import os
 import pytest
 from unittest.mock import patch
 from functions import abuseipdb
+
+pytestmark = pytest.mark.mock
 
 
 def test_check_ip_success():

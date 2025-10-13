@@ -3,6 +3,7 @@
   "Values": {
   "FUNCTIONS_WORKER_RUNTIME": "python",
   "AzureWebJobsStorage": "",
-  "ABUSEIPDB_API_KEY": "e0f1f8047bf9818177633dd7db890c2add764ca8e0eb7f45fff8f6dc57f9dcd05449db766559b1c2"
+  "ABUSEIPDB_API_KEY": "e0f1f8047bf9818177633dd7db890c2add764ca8e0eb7f45fff8f6dc57f9dcd05449db766559b1c2",
+  "ALIENVAULT_API_KEY": "6074ac8bd2e75b0caf4e7d4ea30ecf18601b4994eb3c3ae6e3713358ffbd0604"
   }
 }
