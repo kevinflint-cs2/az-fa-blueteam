@@ -3,3 +3,5 @@ requests
 ruff
 mypy
 commitizen
+pre-commit
+detect-secrets

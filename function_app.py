@@ -1,10 +1,9 @@
-
-
 import azure.functions as func
 from functions.abuseipdb import check_ip, report_ip
 from functions.alienvault import submit_url, submit_ip, submit_hash, submit_domain
 
 app = func.FunctionApp()
+
 
 # AlienVault: submit_url
 @app.route(route="alienvault/submit_url", auth_level=func.AuthLevel.FUNCTION)
@@ -29,6 +28,7 @@ def alienvault_submit_url(req: func.HttpRequest) -> func.HttpResponse:
         return func.HttpResponse(f"Error: {exc}", status_code=500)
     return func.HttpResponse(str(result), mimetype="application/json")
 
+
 # AlienVault: submit_ip
 @app.route(route="alienvault/submit_ip", auth_level=func.AuthLevel.FUNCTION)
 def alienvault_submit_ip(req: func.HttpRequest) -> func.HttpResponse:
@@ -52,6 +52,7 @@ def alienvault_submit_ip(req: func.HttpRequest) -> func.HttpResponse:
         return func.HttpResponse(f"Error: {exc}", status_code=500)
     return func.HttpResponse(str(result), mimetype="application/json")
 
+
 # AlienVault: submit_hash
 @app.route(route="alienvault/submit_hash", auth_level=func.AuthLevel.FUNCTION)
 def alienvault_submit_hash(req: func.HttpRequest) -> func.HttpResponse:
@@ -68,12 +69,15 @@ def alienvault_submit_hash(req: func.HttpRequest) -> func.HttpResponse:
         else:
             file_hash = req_body.get("file_hash")
     if not file_hash:
-        return func.HttpResponse("Missing required parameter: file_hash", status_code=400)
+        return func.HttpResponse(
+            "Missing required parameter: file_hash", status_code=400
+        )
     try:
         result = submit_hash(file_hash)
     except Exception as exc:
         return func.HttpResponse(f"Error: {exc}", status_code=500)
     return func.HttpResponse(str(result), mimetype="application/json")
+
 
 # AlienVault: submit_domain
 @app.route(route="alienvault/submit_domain", auth_level=func.AuthLevel.FUNCTION)
@@ -98,6 +102,7 @@ def alienvault_submit_domain(req: func.HttpRequest) -> func.HttpResponse:
         return func.HttpResponse(f"Error: {exc}", status_code=500)
     return func.HttpResponse(str(result), mimetype="application/json")
 
+
 # AbuseIPDB: check
 @app.route(route="abuseipdb/check", auth_level=func.AuthLevel.FUNCTION)
 def abuseipdb_check(req: func.HttpRequest) -> func.HttpResponse:
@@ -121,6 +126,7 @@ def abuseipdb_check(req: func.HttpRequest) -> func.HttpResponse:
         return func.HttpResponse(f"Error: {exc}", status_code=500)
     return func.HttpResponse(str(result), mimetype="application/json")
 
+
 # AbuseIPDB: report
 @app.route(route="abuseipdb/report", auth_level=func.AuthLevel.FUNCTION)
 def abuseipdb_report(req: func.HttpRequest) -> func.HttpResponse:
@@ -140,10 +146,11 @@ def abuseipdb_report(req: func.HttpRequest) -> func.HttpResponse:
         categories = categories or req_body.get("categories")
         comment = comment or req_body.get("comment")
     if not ip or not categories or not comment:
-        return func.HttpResponse("Missing required parameters: ip, categories, comment", status_code=400)
+        return func.HttpResponse(
+            "Missing required parameters: ip, categories, comment", status_code=400
+        )
     try:
         result = report_ip(ip, categories, comment)
     except Exception as exc:
         return func.HttpResponse(f"Error: {exc}", status_code=500)
     return func.HttpResponse(str(result), mimetype="application/json")
-

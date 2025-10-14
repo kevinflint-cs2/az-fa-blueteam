@@ -16,7 +16,9 @@ def get_api_key() -> str:
     """
     api_key = os.getenv("ALIENVAULT_API_KEY")
     if not api_key:
-        raise RuntimeError("AlienVault API key not set in environment variable 'ALIENVAULT_API_KEY'.")
+        raise RuntimeError(
+            "AlienVault API key not set in environment variable 'ALIENVAULT_API_KEY'."
+        )
     return api_key
 
 
@@ -36,7 +38,9 @@ def submit_url(url: str) -> Dict[str, Any]:
     data = {"url": url}
     response = requests.post(endpoint, headers=headers, data=data, timeout=10)
     if not response.ok:
-        raise RuntimeError(f"AlienVault submit_url failed: {response.status_code} {response.text}")
+        raise RuntimeError(
+            f"AlienVault submit_url failed: {response.status_code} {response.text}"
+        )
     return response.json()
 
 
@@ -60,7 +64,9 @@ def submit_ip(ip: str) -> Dict[str, Any]:
     headers = {"X-OTX-API-KEY": api_key, "Accept": "application/json"}
     response = requests.get(endpoint, headers=headers, timeout=10)
     if not response.ok:
-        raise RuntimeError(f"AlienVault submit_ip failed: {response.status_code} {response.text}")
+        raise RuntimeError(
+            f"AlienVault submit_ip failed: {response.status_code} {response.text}"
+        )
     return response.json()
 
 
@@ -79,7 +85,9 @@ def submit_hash(file_hash: str) -> Dict[str, Any]:
     headers = {"X-OTX-API-KEY": api_key, "Accept": "application/json"}
     response = requests.get(endpoint, headers=headers, timeout=10)
     if not response.ok:
-        raise RuntimeError(f"AlienVault submit_hash failed: {response.status_code} {response.text}")
+        raise RuntimeError(
+            f"AlienVault submit_hash failed: {response.status_code} {response.text}"
+        )
     return response.json()
 
 
@@ -98,5 +106,7 @@ def submit_domain(domain: str) -> Dict[str, Any]:
     headers = {"X-OTX-API-KEY": api_key, "Accept": "application/json"}
     response = requests.get(endpoint, headers=headers, timeout=10)
     if not response.ok:
-        raise RuntimeError(f"AlienVault submit_domain failed: {response.status_code} {response.text}")
+        raise RuntimeError(
+            f"AlienVault submit_domain failed: {response.status_code} {response.text}"
+        )
     return response.json()
