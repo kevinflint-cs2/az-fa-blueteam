@@ -38,6 +38,7 @@ pip-delete-this-directory.txt
 
 # Unit test / coverage reports
 htmlcov/
+az_fa_blueteam.zip
 local.settings.json
 .tox/
 .nox/

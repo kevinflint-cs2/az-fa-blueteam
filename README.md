@@ -16,7 +16,19 @@ requirements.txt     # Python dependencies
 requirements-dev.txt # Dev/test dependencies (pytest, requests, etc.)
 local.settings.json  # Local Azure Functions settings
 host.json            # Azure Functions host configuration
+deploy_staging.sh    # Script to create a clean deployment zip
+az_fa_blueteam.zip   # Deployment zip (created by script, not in repo)
 ```
+## Deployment: Zip for Azure Functions
+
+To create a clean deployment zip (excluding local.settings.json and dev/test files), run:
+
+```bash
+./deploy_staging.sh
+```
+
+This will create `az_fa_blueteam.zip` in the project root, ready for Azure zip deploy. The script ensures only production files are included.
+
 
 ## Endpoints
 
