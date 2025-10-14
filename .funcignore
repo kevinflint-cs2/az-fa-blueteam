@@ -38,6 +38,13 @@ coverage.xml
 # --- Logs & local env files ---
 *.log
 .env
+az_fa_blueteam.zip
+deploy_staging.sh
+requirements-dev.txt
+local.settings.json
+README.md
+prompts/
+tests/
 .env.*
 
 # --- Local-only Azure Functions files ---
