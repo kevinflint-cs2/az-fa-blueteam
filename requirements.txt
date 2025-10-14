@@ -1,1 +1,3 @@
+# Required for AbuseIPDB and AlienVault API calls
+requests
 azure-functions
