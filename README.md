@@ -10,6 +10,7 @@ Lightweight Azure Function App (Python) that provides on-demand blue-team enrich
 ```
 functions/           # Business logic for each endpoint
   abuseipdb.py       # Logic for AbuseIPDB check/report endpoints
+  alienvault.py      # Logic for AlienVault endpoints
 function_app.py      # Azure Functions HTTP triggers and routing
 requirements.txt     # Python dependencies
 requirements-dev.txt # Dev/test dependencies (pytest, requests, etc.)
@@ -121,7 +122,7 @@ You can deploy using the Visual Studio Code Azure extension:
 ### Running Tests
 - Run only mock (unit) tests:
   ```bash
-  pytest -m "not live"
+  pytest -m mock
   # or, to be explicit:
   pytest -k "test_ and not test_alienvault_live"
   ```
@@ -131,7 +132,7 @@ You can deploy using the Visual Studio Code Azure extension:
   ```
 - Run all tests:
   ```bash
-  pytest
+  pytest ./tests -vv
   ```
 
 Run these before committing or deploying:
