@@ -32,11 +32,6 @@ RUN if ! command -v func >/dev/null 2>&1; then \
       echo 'func present via apt'; \
     fi
 
-# Install Poetry system-wide (to /usr/local so vscode user can use it)
-ENV POETRY_HOME=/usr/local
-ENV PATH="$POETRY_HOME/bin:$PATH"
-RUN curl -sSL https://install.python-poetry.org | python3 - --yes
-
 # Clean up
 RUN apt-get clean && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
 
