@@ -53,6 +53,8 @@ curl "http://localhost:7071/api/alienvault/submit_ip?ip=1.2.3.4"
 curl "http://localhost:7071/api/alienvault/submit_hash?file_hash=abcd1234"
 # Query a domain
 curl "http://localhost:7071/api/alienvault/submit_domain?domain=example.com"
+# AbuseIPDB: check an IP
+curl "http://localhost:7071/api/abuseipdb/check?ip=1.2.3.4"
 ```
 
 ## Usage
@@ -75,12 +77,31 @@ pip install -r requirements.txt
 pip install -r requirements-dev.txt
 ```
 
-### 2. Local Development
+#### Add environment variables (local)
 
-#### Start the Azure Functions host
+To add the required API keys to your local Azure Functions settings (writes to `local.settings.json`), use the Functions Core Tools `func settings add` command. This avoids manual editing and ensures values are placed under the `Values` object.
+
+```bash
+# AbuseIPDB API key
+func settings add ABUSEIPDB_API_KEY "your_abuseipdb_api_key_here"
+
+# AlienVault API key
+func settings add ALIENVAULT_API_KEY "your_alienvault_api_key_here"
+```
+
+Notes:
+- `local.settings.json` is already listed in `.gitignore` in this repo, so these files should not be committed.
+- If you prefer not to write secrets to a file, export them into your shell instead before starting the Functions host (example below).
+
+#### Start the Azure Functions host (local)
+
+Start the Functions host after adding settings and installing dependencies:
+
 ```bash
 func start
 ```
+
+### 2. Local Development
 
 #### Run automated tests
 ```bash

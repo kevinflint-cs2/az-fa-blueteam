@@ -1,6 +1,9 @@
 import azure.functions as func
 from functions.abuseipdb import check_ip, report_ip
 from functions.alienvault import submit_url, submit_ip, submit_hash, submit_domain
+from functions.dns_resolver import resolve_domains_async
+import json
+import os
 
 app = func.FunctionApp()
 
@@ -154,3 +157,50 @@ def abuseipdb_report(req: func.HttpRequest) -> func.HttpResponse:
     except Exception as exc:
         return func.HttpResponse(f"Error: {exc}", status_code=500)
     return func.HttpResponse(str(result), mimetype="application/json")
+
+
+# DNS: resolve
+@app.route(route="dns/resolve", auth_level=func.AuthLevel.FUNCTION)
+async def dns_resolve(req: func.HttpRequest) -> func.HttpResponse:
+    """
+    Azure Function HTTP trigger for resolving multiple domains.
+    Accepts query param `domains` (comma-separated) or JSON body { "domains": [ ... ] }.
+    """
+    domains_param = req.params.get("domains")
+    domains = None
+    if domains_param:
+        # allow comma-separated list
+        domains = [d.strip() for d in domains_param.split(",") if d.strip()]
+    else:
+        try:
+            req_body = req.get_json()
+        except ValueError:
+            req_body = {}
+        domains = req_body.get("domains")
+
+    if not domains or not isinstance(domains, list):
+        return func.HttpResponse("Missing required parameter: domains (array)", status_code=400)
+
+    # Read defaults from environment (optional overrides)
+    timeout = float(os.getenv("DNS_TIMEOUT", "3.0"))
+    per_domain_timeout = os.getenv("DNS_PER_DOMAIN_TIMEOUT")
+    per_domain_timeout = float(per_domain_timeout) if per_domain_timeout else None
+    concurrency = int(os.getenv("DNS_CONCURRENCY", "50"))
+    retries = int(os.getenv("DNS_RETRIES", "2"))
+    nameservers = os.getenv("DNS_NAMESERVERS")
+    if nameservers:
+        nameservers = [ns.strip() for ns in nameservers.split(",") if ns.strip()]
+
+    try:
+        result = await resolve_domains_async(
+            domains,
+            timeout=timeout,
+            per_domain_timeout=per_domain_timeout,
+            concurrency=concurrency,
+            nameservers=nameservers,
+            retries=retries,
+        )
+    except Exception as exc:
+        return func.HttpResponse(f"Error: {exc}", status_code=500)
+
+    return func.HttpResponse(json.dumps(result), mimetype="application/json")
