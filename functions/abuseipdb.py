@@ -1,5 +1,5 @@
 import os
-from typing import Any
+from typing import Any, cast
 
 import requests
 
@@ -26,7 +26,8 @@ def check_ip(ip: str) -> dict[str, Any]:
     response = requests.get(url, headers=headers, params=params, timeout=10)
     if not response.ok:
         raise RuntimeError(f"AbuseIPDB check failed: {response.status_code} {response.text}")
-    return response.json()
+    # response.json() is typed as Any; cast to the declared return type for mypy
+    return cast(dict[str, Any], response.json())
 
 
 def report_ip(ip: str, categories: str, comment: str) -> dict[str, Any]:
@@ -53,4 +54,5 @@ def report_ip(ip: str, categories: str, comment: str) -> dict[str, Any]:
     response = requests.post(url, headers=headers, data=data, timeout=10)
     if not response.ok:
         raise RuntimeError(f"AbuseIPDB report failed: {response.status_code} {response.text}")
-    return response.json()
+    # response.json() is typed as Any; cast to the declared return type for mypy
+    return cast(dict[str, Any], response.json())

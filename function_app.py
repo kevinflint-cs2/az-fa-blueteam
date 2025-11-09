@@ -183,13 +183,14 @@ async def dns_resolve(req: func.HttpRequest) -> func.HttpResponse:
 
     # Read defaults from environment (optional overrides)
     timeout = float(os.getenv("DNS_TIMEOUT", "3.0"))
-    per_domain_timeout = os.getenv("DNS_PER_DOMAIN_TIMEOUT")
-    per_domain_timeout = float(per_domain_timeout) if per_domain_timeout else None
+    per_domain_timeout_str = os.getenv("DNS_PER_DOMAIN_TIMEOUT")
+    per_domain_timeout: float | None = float(per_domain_timeout_str) if per_domain_timeout_str else None
     concurrency = int(os.getenv("DNS_CONCURRENCY", "50"))
     retries = int(os.getenv("DNS_RETRIES", "2"))
-    nameservers = os.getenv("DNS_NAMESERVERS")
-    if nameservers:
-        nameservers = [ns.strip() for ns in nameservers.split(",") if ns.strip()]
+    nameservers_str = os.getenv("DNS_NAMESERVERS")
+    nameservers: list[str] | None = None
+    if nameservers_str:
+        nameservers = [ns.strip() for ns in nameservers_str.split(",") if ns.strip()]
 
     try:
         result = await resolve_domains_async(

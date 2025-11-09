@@ -20,7 +20,7 @@ class SimpleTTLCache:
     def __init__(self):
         self._data: dict[tuple[str, str], tuple[float, Any]] = {}
 
-    def get(self, name: str, rtype: str):
+    def get(self, name: str, rtype: str) -> Any | None:
         key = (name, rtype)
         ent = self._data.get(key)
         if not ent:
@@ -31,7 +31,7 @@ class SimpleTTLCache:
             return None
         return val
 
-    def set(self, name: str, rtype: str, value: Any, ttl: int | None):
+    def set(self, name: str, rtype: str, value: Any, ttl: int | None) -> None:
         key = (name, rtype)
         exp = time.monotonic() + (ttl if ttl is not None else DEFAULT_CACHE_TTL)
         self._data[key] = (exp, value)
@@ -129,10 +129,14 @@ async def resolve_domains_async(
                             # If we get here and answers exist, follow the first
                             cname_target = ans[0].target.to_text() if ans else None
                             # Cache small TTL if rrset present
-                            try:
-                                ttl = ans.rrset.ttl
-                            except Exception:
-                                ttl = cache_ttl_default
+                            ttl = cache_ttl_default
+                            if ans is not None:
+                                rr = getattr(ans, "rrset", None)
+                                if rr is not None:
+                                    try:
+                                        ttl = rr.ttl
+                                    except Exception:
+                                        ttl = cache_ttl_default
                             if cname_target:
                                 _GLOBAL_CACHE.set(name, "CNAME", cname_target, ttl)
                         if not cname_target:
@@ -154,6 +158,7 @@ async def resolve_domains_async(
                     if cached is not None:
                         ips = cached
                     else:
+                        exc: Exception | None = None
                         try:
                             answers = await resolver.resolve(name, rtype)
                         except Exception as e:
@@ -164,10 +169,14 @@ async def resolve_domains_async(
                         if answers:
                             ips = [r.to_text() for r in answers]
                             # cache using rrset TTL if available
-                            try:
-                                ttl = answers.rrset.ttl
-                            except Exception:
-                                ttl = cache_ttl_default
+                            ttl = cache_ttl_default
+                            if answers is not None:
+                                rr = getattr(answers, "rrset", None)
+                                if rr is not None:
+                                    try:
+                                        ttl = rr.ttl
+                                    except Exception:
+                                        ttl = cache_ttl_default
                             _GLOBAL_CACHE.set(name, rtype, ips, ttl)
                         else:
                             ips = []
@@ -185,10 +194,14 @@ async def resolve_domains_async(
                     else:
                         ns_answers = await resolver.resolve(domain, "NS")
                         ns_list = [r.to_text() for r in ns_answers]
-                        try:
-                            ttl = ns_answers.rrset.ttl
-                        except Exception:
-                            ttl = cache_ttl_default
+                        ttl = cache_ttl_default
+                        if ns_answers is not None:
+                            rr = getattr(ns_answers, "rrset", None)
+                            if rr is not None:
+                                try:
+                                    ttl = rr.ttl
+                                except Exception:
+                                    ttl = cache_ttl_default
                         _GLOBAL_CACHE.set(domain, "NS", ns_list, ttl)
                     result["name_servers"] = ns_list
                 except dns.resolver.NoAnswer:
@@ -248,13 +261,19 @@ async def resolve_domains_async(
         end_ms = _now_ms()
 
         # Fill metrics and trace
-        metrics = {
+        resolved_ns: str | None = None
+        nameservers_val = getattr(resolver, "nameservers", None)
+        if nameservers_val and len(nameservers_val) > 0:
+            try:
+                resolved_ns = str(nameservers_val[0])
+            except Exception:
+                resolved_ns = None
+
+        metrics: dict[str, Any] = {
             "duration_ms": end_ms - start_ms,
             "query_count": None,  # could instrument per-query counting if desired
             "retries": attempts - 1,
-            "resolved_by_nameserver": (
-                resolver.nameservers[0] if getattr(resolver, "nameservers", None) else None
-            ),
+            "resolved_by_nameserver": resolved_ns,
         }
 
         trace["nameserver"] = metrics["resolved_by_nameserver"]

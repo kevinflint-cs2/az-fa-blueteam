@@ -1,6 +1,6 @@
 import ipaddress
 import os
-from typing import Any
+from typing import Any, cast
 
 import requests
 
@@ -40,7 +40,8 @@ def submit_url(url: str) -> dict[str, Any]:
     response = requests.post(endpoint, headers=headers, data=data, timeout=10)
     if not response.ok:
         raise RuntimeError(f"AlienVault submit_url failed: {response.status_code} {response.text}")
-    return response.json()
+    # response.json() is typed as Any; cast to the declared return type for mypy
+    return cast(dict[str, Any], response.json())
 
 
 def submit_ip(ip: str) -> dict[str, Any]:
@@ -65,7 +66,8 @@ def submit_ip(ip: str) -> dict[str, Any]:
     response = requests.get(endpoint, headers=headers, timeout=10)
     if not response.ok:
         raise RuntimeError(f"AlienVault submit_ip failed: {response.status_code} {response.text}")
-    return response.json()
+    # response.json() is typed as Any; cast to the declared return type for mypy
+    return cast(dict[str, Any], response.json())
 
 
 def submit_hash(file_hash: str) -> dict[str, Any]:
@@ -84,7 +86,8 @@ def submit_hash(file_hash: str) -> dict[str, Any]:
     response = requests.get(endpoint, headers=headers, timeout=10)
     if not response.ok:
         raise RuntimeError(f"AlienVault submit_hash failed: {response.status_code} {response.text}")
-    return response.json()
+    # response.json() is typed as Any; cast to the declared return type for mypy
+    return cast(dict[str, Any], response.json())
 
 
 def submit_domain(domain: str) -> dict[str, Any]:
@@ -105,4 +108,5 @@ def submit_domain(domain: str) -> dict[str, Any]:
         raise RuntimeError(
             f"AlienVault submit_domain failed: {response.status_code} {response.text}"
         )
-    return response.json()
+    # response.json() is typed as Any; cast to the declared return type for mypy
+    return cast(dict[str, Any], response.json())
