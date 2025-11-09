@@ -1,5 +1,7 @@
-import pytest
 from unittest.mock import patch
+
+import pytest
+
 from functions import alienvault
 
 pytestmark = pytest.mark.mock

@@ -1,0 +1,10 @@
+target-version = "py311"
+line-length = 100
+
+[lint]
+extend-select = ["E","F","I","B","UP","PT"]  # pycodestyle, pyflakes, isort, bugbear, pyupgrade, pytest
+ignore = ["E203"]  # slice formatting compatibility
+
+[format]
+quote-style = "double"
+indent-style = "space"

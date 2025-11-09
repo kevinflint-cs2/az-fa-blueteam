@@ -1,4 +1,3 @@
-import json
 import os
 import random
 import string
@@ -6,7 +5,6 @@ import time
 
 import pytest
 import requests
-
 
 # These tests call the running Functions host HTTP endpoint and are marked 'endpoint'.
 BASE_URL = os.getenv("FUNCTION_BASE_URL", "http://localhost:7071")
@@ -51,7 +49,8 @@ def test_dns_http_nxdomain_random():
     r = requests.post(ENDPOINT, json=payload, timeout=10)
     assert r.status_code == 200
     data = r.json()
-    assert isinstance(data, list) and len(data) == 1
+    assert isinstance(data, list)
+    assert len(data) == 1
     item = data[0]
     assert item.get("resolvable") is False
     assert item.get("error") is not None

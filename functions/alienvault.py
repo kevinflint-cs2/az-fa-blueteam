@@ -1,7 +1,8 @@
-import os
-from typing import Any, Dict
-import requests
 import ipaddress
+import os
+from typing import Any
+
+import requests
 
 BASE_URL = "https://otx.alienvault.com"
 
@@ -22,7 +23,7 @@ def get_api_key() -> str:
     return api_key
 
 
-def submit_url(url: str) -> Dict[str, Any]:
+def submit_url(url: str) -> dict[str, Any]:
     """
     Submit a URL to AlienVault OTX for analysis.
     Args:
@@ -38,13 +39,11 @@ def submit_url(url: str) -> Dict[str, Any]:
     data = {"url": url}
     response = requests.post(endpoint, headers=headers, data=data, timeout=10)
     if not response.ok:
-        raise RuntimeError(
-            f"AlienVault submit_url failed: {response.status_code} {response.text}"
-        )
+        raise RuntimeError(f"AlienVault submit_url failed: {response.status_code} {response.text}")
     return response.json()
 
 
-def submit_ip(ip: str) -> Dict[str, Any]:
+def submit_ip(ip: str) -> dict[str, Any]:
     """
     Query AlienVault OTX for information about an IP address (IPv4 or IPv6).
     Args:
@@ -57,20 +56,19 @@ def submit_ip(ip: str) -> Dict[str, Any]:
     api_key = get_api_key()
     try:
         ip_obj = ipaddress.ip_address(ip)
-    except ValueError:
-        raise RuntimeError("Invalid IP address format.")
+    except ValueError as err:
+        # Chain the original ValueError to preserve context for debugging
+        raise RuntimeError("Invalid IP address format.") from err
     version = "IPv4" if ip_obj.version == 4 else "IPv6"
     endpoint = f"{BASE_URL}/api/v1/indicators/{version}/{ip}/general"
     headers = {"X-OTX-API-KEY": api_key, "Accept": "application/json"}
     response = requests.get(endpoint, headers=headers, timeout=10)
     if not response.ok:
-        raise RuntimeError(
-            f"AlienVault submit_ip failed: {response.status_code} {response.text}"
-        )
+        raise RuntimeError(f"AlienVault submit_ip failed: {response.status_code} {response.text}")
     return response.json()
 
 
-def submit_hash(file_hash: str) -> Dict[str, Any]:
+def submit_hash(file_hash: str) -> dict[str, Any]:
     """
     Query AlienVault OTX for information about a file hash.
     Args:
@@ -85,13 +83,11 @@ def submit_hash(file_hash: str) -> Dict[str, Any]:
     headers = {"X-OTX-API-KEY": api_key, "Accept": "application/json"}
     response = requests.get(endpoint, headers=headers, timeout=10)
     if not response.ok:
-        raise RuntimeError(
-            f"AlienVault submit_hash failed: {response.status_code} {response.text}"
-        )
+        raise RuntimeError(f"AlienVault submit_hash failed: {response.status_code} {response.text}")
     return response.json()
 
 
-def submit_domain(domain: str) -> Dict[str, Any]:
+def submit_domain(domain: str) -> dict[str, Any]:
     """
     Query AlienVault OTX for information about a domain.
     Args:

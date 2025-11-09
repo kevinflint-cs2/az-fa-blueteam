@@ -1,14 +1,11 @@
 import asyncio
-import json
-import os
-import time
 import random
-from typing import Any, Dict, List, Optional, Tuple
+import time
+from typing import Any
 
 import dns.asyncresolver as adns
 import dns.exception
 import dns.resolver
-
 
 DEFAULT_TIMEOUT = 3.0
 DEFAULT_CONCURRENCY = 50
@@ -21,7 +18,7 @@ class SimpleTTLCache:
     """A tiny in-memory TTL cache. Not thread-safe but fine for single-process async use."""
 
     def __init__(self):
-        self._data: Dict[Tuple[str, str], Tuple[float, Any]] = {}
+        self._data: dict[tuple[str, str], tuple[float, Any]] = {}
 
     def get(self, name: str, rtype: str):
         key = (name, rtype)
@@ -34,7 +31,7 @@ class SimpleTTLCache:
             return None
         return val
 
-    def set(self, name: str, rtype: str, value: Any, ttl: Optional[int]):
+    def set(self, name: str, rtype: str, value: Any, ttl: int | None):
         key = (name, rtype)
         exp = time.monotonic() + (ttl if ttl is not None else DEFAULT_CACHE_TTL)
         self._data[key] = (exp, value)
@@ -64,17 +61,17 @@ def _is_transient_error(exc: Exception) -> bool:
 
 
 async def resolve_domains_async(
-    domains: List[str],
+    domains: list[str],
     timeout: float = DEFAULT_TIMEOUT,
-    per_domain_timeout: Optional[float] = None,
+    per_domain_timeout: float | None = None,
     concurrency: int = DEFAULT_CONCURRENCY,
-    nameservers: Optional[List[str]] = None,
+    nameservers: list[str] | None = None,
     retries: int = DEFAULT_RETRIES,
     cache_ttl_default: int = DEFAULT_CACHE_TTL,
     dnssec_mode: str = "presence",
-    metrics_hook: Optional[Any] = None,
-    trace_context: Optional[Dict[str, str]] = None,
-) -> List[Dict[str, Any]]:
+    metrics_hook: Any | None = None,
+    trace_context: dict[str, str] | None = None,
+) -> list[dict[str, Any]]:
     """
     Asynchronously resolve a list of domains and return per-domain result objects.
 
@@ -90,9 +87,9 @@ async def resolve_domains_async(
 
     sem = asyncio.Semaphore(concurrency)
 
-    async def _resolve_one(domain: str) -> Dict[str, Any]:
+    async def _resolve_one(domain: str) -> dict[str, Any]:
         start_ms = _now_ms()
-        result: Dict[str, Any] = {
+        result: dict[str, Any] = {
             "domain": domain,
             "resolvable": False,
             "ip_addresses": [],
@@ -108,7 +105,9 @@ async def resolve_domains_async(
         trace = {
             "trace_id": (trace_context or {}).get("trace_id") if trace_context else None,
             "span_id": span_id,
-            "parent_span_id": (trace_context or {}).get("parent_span_id") if trace_context else None,
+            "parent_span_id": (trace_context or {}).get("parent_span_id")
+            if trace_context
+            else None,
             "nameserver": None,
         }
 
@@ -120,7 +119,7 @@ async def resolve_domains_async(
             name = domain
             # Follow CNAMEs up to max depth
             try:
-                for depth in range(MAX_CNAME_DEPTH):
+                for _depth in range(MAX_CNAME_DEPTH):
                     try:
                         cached = _GLOBAL_CACHE.get(name, "CNAME")
                         if cached is not None:
@@ -243,7 +242,7 @@ async def resolve_domains_async(
                 if not _is_transient_error(exc) or attempt == retries:
                     break
                 # exponential backoff with jitter
-                backoff = (2 ** attempt) * 0.1
+                backoff = (2**attempt) * 0.1
                 await asyncio.sleep(backoff + random.random() * backoff)
 
         end_ms = _now_ms()
@@ -253,7 +252,9 @@ async def resolve_domains_async(
             "duration_ms": end_ms - start_ms,
             "query_count": None,  # could instrument per-query counting if desired
             "retries": attempts - 1,
-            "resolved_by_nameserver": (resolver.nameservers[0] if getattr(resolver, "nameservers", None) else None),
+            "resolved_by_nameserver": (
+                resolver.nameservers[0] if getattr(resolver, "nameservers", None) else None
+            ),
         }
 
         trace["nameserver"] = metrics["resolved_by_nameserver"]

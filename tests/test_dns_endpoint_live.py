@@ -1,4 +1,3 @@
-import json
 import os
 import random
 import string
@@ -6,7 +5,6 @@ import time
 
 import pytest
 import requests
-
 
 # These tests are "live" in the sense they hit the running Functions host endpoint.
 # They require you to start the Functions host separately (e.g., `func start`).
@@ -68,7 +66,8 @@ def test_endpoint_nxdomain_random():
     r = requests.post(ENDPOINT, json=payload, timeout=10)
     assert r.status_code == 200
     data = r.json()
-    assert isinstance(data, list) and len(data) == 1
+    assert isinstance(data, list)
+    assert len(data) == 1
     item = data[0]
     # resolvable should be false and error populated
     assert item.get("resolvable") is False

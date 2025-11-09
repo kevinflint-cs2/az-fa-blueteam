@@ -1,9 +1,11 @@
-import azure.functions as func
-from functions.abuseipdb import check_ip, report_ip
-from functions.alienvault import submit_url, submit_ip, submit_hash, submit_domain
-from functions.dns_resolver import resolve_domains_async
 import json
 import os
+
+import azure.functions as func
+
+from functions.abuseipdb import check_ip, report_ip
+from functions.alienvault import submit_domain, submit_hash, submit_ip, submit_url
+from functions.dns_resolver import resolve_domains_async
 
 app = func.FunctionApp()
 
@@ -72,9 +74,7 @@ def alienvault_submit_hash(req: func.HttpRequest) -> func.HttpResponse:
         else:
             file_hash = req_body.get("file_hash")
     if not file_hash:
-        return func.HttpResponse(
-            "Missing required parameter: file_hash", status_code=400
-        )
+        return func.HttpResponse("Missing required parameter: file_hash", status_code=400)
     try:
         result = submit_hash(file_hash)
     except Exception as exc:
