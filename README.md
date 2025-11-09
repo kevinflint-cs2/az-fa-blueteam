@@ -5,12 +5,15 @@ Lightweight Azure Function App (Python) that provides on-demand blue-team enrich
 ## Features
 - **AbuseIPDB Endpoints**: Check and report IPs using the AbuseIPDB API.
 - Easily extensible for additional enrichment APIs (e.g., AbuseIPDB, VirusTotal, Web of Trust).
+- **DNS resolver endpoint**: Resolve domain names (A/AAAA/NS) with basic DNSSEC presence detection and return structured results including IPs, nameservers, dnssec status, metrics, and trace info.
+- Easily extensible for additional enrichment APIs (e.g., AbuseIPDB, VirusTotal, Web of Trust).
 
 ## Project Structure
 ```
 functions/           # Business logic for each endpoint
   abuseipdb.py       # Logic for AbuseIPDB check/report endpoints
   alienvault.py      # Logic for AlienVault endpoints
+  dns_resolver.py    # Async DNS resolver with caching, retries, and DNSSEC presence checks
 function_app.py      # Azure Functions HTTP triggers and routing
 requirements.txt     # Python dependencies
 requirements-dev.txt # Dev/test dependencies (pytest, requests, etc.)
@@ -34,6 +37,7 @@ This will create `az_fa_blueteam.zip` in the project root, ready for Azure zip d
 
 - `GET /api/abuseipdb/check?ip=1.2.3.4` → AbuseIPDB check for an IP (returns JSON)
 - `POST /api/abuseipdb/report` with JSON body `{ "ip": "1.2.3.4", "categories": "18", "comment": "test" }` → AbuseIPDB report (returns JSON)
+- `POST /api/dns/resolve` with JSON body `{ "domains": ["example.com", "google.com"] }` or query param `?domains=example.com,google.com` → Resolve domains and return structured DNS results (A/AAAA/NS, dnssec presence, metrics)
 
 ### AlienVault Endpoints
 - `POST /api/alienvault/submit_url` with JSON `{ "url": "http://example.com" }` or query param `?url=...` → Submits a URL for OTX analysis
@@ -55,6 +59,8 @@ curl "http://localhost:7071/api/alienvault/submit_hash?file_hash=abcd1234"
 curl "http://localhost:7071/api/alienvault/submit_domain?domain=example.com"
 # AbuseIPDB: check an IP
 curl "http://localhost:7071/api/abuseipdb/check?ip=1.2.3.4"
+# DNS resolver: resolve domains
+curl -X POST "http://localhost:7071/api/dns/resolve" -H "Content-Type: application/json" -d '{"domains": ["example.com"]}'
 ```
 
 ## Usage
