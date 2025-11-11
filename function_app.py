@@ -3,6 +3,7 @@ import os
 
 import azure.functions as func
 
+from functions import whois as whois_module
 from functions.abuseipdb import check_ip, report_ip
 from functions.alienvault import submit_domain, submit_hash, submit_ip, submit_url
 from functions.dns_resolver import resolve_domains_async
@@ -184,7 +185,11 @@ async def dns_resolve(req: func.HttpRequest) -> func.HttpResponse:
     # Read defaults from environment (optional overrides)
     timeout = float(os.getenv("DNS_TIMEOUT", "3.0"))
     per_domain_timeout_str = os.getenv("DNS_PER_DOMAIN_TIMEOUT")
-    per_domain_timeout: float | None = float(per_domain_timeout_str) if per_domain_timeout_str else None
+    per_domain_timeout: float | None
+    if per_domain_timeout_str:
+        per_domain_timeout = float(per_domain_timeout_str)
+    else:
+        per_domain_timeout = None
     concurrency = int(os.getenv("DNS_CONCURRENCY", "50"))
     retries = int(os.getenv("DNS_RETRIES", "2"))
     nameservers_str = os.getenv("DNS_NAMESERVERS")
@@ -203,5 +208,53 @@ async def dns_resolve(req: func.HttpRequest) -> func.HttpResponse:
         )
     except Exception as exc:
         return func.HttpResponse(f"Error: {exc}", status_code=500)
+
+    return func.HttpResponse(json.dumps(result), mimetype="application/json")
+
+
+# Whois: combined IP/domain lookup
+@app.route(route="whois", auth_level=func.AuthLevel.FUNCTION)
+def whois_lookup(req: func.HttpRequest) -> func.HttpResponse:
+    """
+    Azure Function HTTP trigger for combined whois/RDAP lookups.
+    Expects `q` as a query param or JSON body.
+    Optional params in JSON body: `source`, `raw`, `timeout`.
+    """
+    q = req.params.get("q")
+    if not q:
+        try:
+            req_body = req.get_json()
+        except ValueError:
+            req_body = {}
+        q = req_body.get("q")
+
+    if not q:
+        return func.HttpResponse("Missing required parameter: q", status_code=400)
+
+    # Build payload dict for the module
+    payload = {"q": q}
+    try:
+        req_body = req.get_json()
+    except ValueError:
+        req_body = {}
+    # optional fields
+    for opt in ("source", "raw", "timeout"):
+        if opt in req_body:
+            payload[opt] = req_body[opt]
+
+    try:
+        result = whois_module.handle_request(payload)
+    except ValueError as ve:
+        error_obj = {"status": "error", "error": {"msg": str(ve)}}
+        resp = func.HttpResponse(
+            json.dumps(error_obj), status_code=400, mimetype="application/json"
+        )
+        return resp
+    except Exception as exc:
+        error_obj = {"status": "error", "error": {"msg": str(exc)}}
+        resp = func.HttpResponse(
+            json.dumps(error_obj), status_code=500, mimetype="application/json"
+        )
+        return resp
 
     return func.HttpResponse(json.dumps(result), mimetype="application/json")

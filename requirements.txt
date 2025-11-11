@@ -2,3 +2,7 @@
 requests
 azure-functions
 dnspython
+ipwhois
+python-whois
+tldextract
+cachetools
