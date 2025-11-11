@@ -1,6 +1,41 @@
+# Linting & Type Checking (Phase 5)
+
+**AI is allowed to run these commands.**
 ---
 
-### 🧠 Refined Prompt — *“Single-Error Resolver Loop”*
+## Linting (Ruff)
+
+### Tools
+
+* **Ruff** for lint + format
+* Use repo-pinned versions/config in `pyproject.toml` if present.
+
+### Order of operations
+
+```bash
+ruff check . --fix
+ruff format .
+ruff check .
+```
+
+> Optional (only if approved): `ruff check . --fix --unsafe-fixes`
+
+### Resolution loop
+
+1. Run the commands.
+2. If there are issues, show a **short summary** (counts + top rules/files) and **suggest fixes**.
+3. Ask: “Apply Fix mode?” or “Targeted edits?”
+4. If approved, apply fixes and **re-run** until clean.
+
+### Reporting (keep it brief)
+
+* Status for: Ruff lint, Ruff format, mypy (PASS/FAIL).
+* Top 3–5 issues with one-line suggestions.
+* Next step prompt (Fix mode / targeted edits / stop).
+
+---
+
+## Type Checking (mypy)
 
 **Goal:** Fix one `mypy` issue at a time with simple explanations, avoiding infinite loops.
 

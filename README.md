@@ -38,6 +38,7 @@ This will create `az_fa_blueteam.zip` in the project root, ready for Azure zip d
 - `GET /api/abuseipdb/check?ip=1.2.3.4` → AbuseIPDB check for an IP (returns JSON)
 - `POST /api/abuseipdb/report` with JSON body `{ "ip": "1.2.3.4", "categories": "18", "comment": "test" }` → AbuseIPDB report (returns JSON)
 - `POST /api/dns/resolve` with JSON body `{ "domains": ["example.com", "google.com"] }` or query param `?domains=example.com,google.com` → Resolve domains and return structured DNS results (A/AAAA/NS, dnssec presence, metrics)
+ - `GET /api/whois?q=<query>` or `POST /api/whois` with JSON `{ "q": "<domain|ip>", ... }` → Combined WHOIS/RDAP lookup for domains and IPs (returns normalized JSON)
 
 ### AlienVault Endpoints
 - `POST /api/alienvault/submit_url` with JSON `{ "url": "http://example.com" }` or query param `?url=...` → Submits a URL for OTX analysis
@@ -61,6 +62,10 @@ curl "http://localhost:7071/api/alienvault/submit_domain?domain=example.com"
 curl "http://localhost:7071/api/abuseipdb/check?ip=1.2.3.4"
 # DNS resolver: resolve domains
 curl -X POST "http://localhost:7071/api/dns/resolve" -H "Content-Type: application/json" -d '{"domains": ["example.com"]}'
+
+# Whois examples
+curl "http://localhost:7071/api/whois?q=example.com"
+curl -X POST "http://localhost:7071/api/whois" -H "Content-Type: application/json" -d '{ "q": "8.8.8.8", "source": "rdap" }'
 ```
 
 ## Usage
