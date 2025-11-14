@@ -5,7 +5,7 @@ It enforces a **structured, review-first process** where all design, implementat
 
 ---
 
-## Phase 1 — AI Setup
+## Phase 1 — GitHub Copilot Setup
 
 **Purpose:** Ensure the AI is aware of the project’s standards, conventions, and implementation patterns before proposing any solutions.
 
@@ -71,6 +71,8 @@ After presenting options:
 
 Once an implementation plan is explicitly **approved**:
 
+* Write the Phase 3 implementation plan to `./docs/implementation/[MODULENAME].md`
+* Create a branch repo using git with the following name format: `feat/[MODULENAME]`
 * The AI may now **generate code**, following the plan exactly.
 * Code must be written in **complete, functional files**.
 * Provide a **summary** describing:

@@ -4,9 +4,10 @@ Lightweight Azure Function App (Python) that provides on-demand blue-team enrich
 
 ## Features
 - **AbuseIPDB Endpoints**: Check and report IPs using the AbuseIPDB API.
-- Easily extensible for additional enrichment APIs (e.g., AbuseIPDB, VirusTotal, Web of Trust).
-- **DNS resolver endpoint**: Resolve domain names (A/AAAA/NS) with basic DNSSEC presence detection and return structured results including IPs, nameservers, dnssec status, metrics, and trace info.
-- Easily extensible for additional enrichment APIs (e.g., AbuseIPDB, VirusTotal, Web of Trust).
+- **DNS Resolver Endpoint**: High-performance async DNS resolver supporting batch domain lookups with A/AAAA/NS records, DNSSEC presence detection, and detailed observability (metrics, errors, tracing). Correctly handles IPv4-only and IPv6-only domains.
+- **WHOIS/RDAP Endpoint**: Combined WHOIS and RDAP lookups for domains and IP addresses with normalized JSON output.
+- **AlienVault OTX Integration**: Submit URLs, IPs, hashes, and domains for threat intelligence analysis.
+- Easily extensible for additional enrichment APIs and threat intelligence sources.
 
 ## Project Structure
 ```
@@ -35,10 +36,21 @@ This will create `az_fa_blueteam.zip` in the project root, ready for Azure zip d
 
 ## Endpoints
 
-- `GET /api/abuseipdb/check?ip=1.2.3.4` → AbuseIPDB check for an IP (returns JSON)
-- `POST /api/abuseipdb/report` with JSON body `{ "ip": "1.2.3.4", "categories": "18", "comment": "test" }` → AbuseIPDB report (returns JSON)
-- `POST /api/dns/resolve` with JSON body `{ "domains": ["example.com", "google.com"] }` or query param `?domains=example.com,google.com` → Resolve domains and return structured DNS results (A/AAAA/NS, dnssec presence, metrics)
- - `GET /api/whois?q=<query>` or `POST /api/whois` with JSON `{ "q": "<domain|ip>", ... }` → Combined WHOIS/RDAP lookup for domains and IPs (returns normalized JSON)
+### AbuseIPDB Endpoints
+- `GET /api/abuseipdb/check?ip=1.2.3.4` → Check IP reputation
+- `POST /api/abuseipdb/report` with JSON `{ "ip": "1.2.3.4", "categories": "18", "comment": "..." }` → Report malicious IP
+
+### DNS Resolver Endpoint
+- `POST /api/dns/resolve` with JSON `{ "domains": ["example.com", "google.com"] }` → Resolve multiple domains
+- `GET /api/dns/resolve?domains=example.com,google.com` → Resolve via query parameters
+
+Returns structured results with IP addresses (A/AAAA), nameservers (NS), DNSSEC presence detection, and observability data. Correctly handles domains with IPv4-only or IPv6-only records.
+
+### WHOIS/RDAP Endpoint
+- `GET /api/whois?q=<query>` → Query domain or IP
+- `POST /api/whois` with JSON `{ "q": "<domain|ip>", ... }` → Advanced query with options
+
+Returns normalized WHOIS/RDAP data with registrar, dates, nameservers, and contact information.
 
 ### AlienVault Endpoints
 - `POST /api/alienvault/submit_url` with JSON `{ "url": "http://example.com" }` or query param `?url=...` → Submits a URL for OTX analysis
@@ -47,6 +59,9 @@ This will create `az_fa_blueteam.zip` in the project root, ready for Azure zip d
 - `GET /api/alienvault/submit_domain?domain=example.com` or JSON `{ "domain": "example.com" }` → OTX info for a domain
 
 All endpoints return JSON. Errors return HTTP 400 for missing/invalid input, HTTP 500 for API/internal errors.
+
+> [!TIP]
+> For detailed documentation on each endpoint, see the module docs in `./docs/modules/`.
 
 #### Example Usage
 ```bash

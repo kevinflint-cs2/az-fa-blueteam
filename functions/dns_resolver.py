@@ -161,6 +161,11 @@ async def resolve_domains_async(
                         exc: Exception | None = None
                         try:
                             answers = await resolver.resolve(name, rtype)
+                        except dns.resolver.NoAnswer:
+                            # NoAnswer for one record type (A or AAAA) is normal
+                            # Domain might only have A or only AAAA records
+                            answers = None
+                            exc = None
                         except Exception as e:
                             answers = None
                             exc = e
