@@ -1,0 +1,6 @@
+- It did ask to create a git branch, I want to validate this was my idea as it is a good one :)
+- DONE: Need to tell Copilot I am using a virtual environment
+- DONE: Need to tell Copilot that I am using local.settings.json from environmental files and to use "func settings add" to add envars
+- More envar issues
+    - The live tests I created use @pytest.mark.live and call the module functions directly (not the HTTP endpoint), which requires the API key in os.environ
+    - They should instead follow the AbuseIPDB pattern: use @pytest.mark.endpoint and call the actual HTTP endpoint

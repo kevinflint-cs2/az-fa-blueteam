@@ -21,8 +21,15 @@ Got it — here’s a **simplified** `./instructions/testing.md` for Copilot.
 
 * `unit` — fast library tests.
 * `live` — safe, read-only endpoint checks.
+* `endpoint` — tests that call the actual HTTP endpoint (follow the AbuseIPDB pattern).
 
 > Do **not** create or use any `destructive` marker. Destructive tests are **forbidden**.
+
+## Testing Pattern
+
+* **Follow the AbuseIPDB pattern:** Use `@pytest.mark.endpoint` and call the actual HTTP endpoint for tests.
+* Endpoint tests should make real HTTP requests to the running function app.
+* These tests verify the full integration including routing, request parsing, and response formatting.
 
 ## Environment
 

@@ -7,6 +7,7 @@ Lightweight Azure Function App (Python) that provides on-demand blue-team enrich
 - **DNS Resolver Endpoint**: High-performance async DNS resolver supporting batch domain lookups with A/AAAA/NS records, DNSSEC presence detection, and detailed observability (metrics, errors, tracing). Correctly handles IPv4-only and IPv6-only domains.
 - **WHOIS/RDAP Endpoint**: Combined WHOIS and RDAP lookups for domains and IP addresses with normalized JSON output.
 - **AlienVault OTX Integration**: Submit URLs, IPs, hashes, and domains for threat intelligence analysis.
+- **URLScan.io Integration**: Submit URLs for automated scanning and threat analysis.
 - Easily extensible for additional enrichment APIs and threat intelligence sources.
 
 ## Project Structure
@@ -58,6 +59,11 @@ Returns normalized WHOIS/RDAP data with registrar, dates, nameservers, and conta
 - `GET /api/alienvault/submit_hash?file_hash=abcd1234` or JSON `{ "file_hash": "abcd1234" }` → OTX info for a file hash
 - `GET /api/alienvault/submit_domain?domain=example.com` or JSON `{ "domain": "example.com" }` → OTX info for a domain
 
+### URLScan.io Endpoint
+- `POST /api/urlscan/submit` with JSON `{ "url": "https://example.com", "visibility": "unlisted" }` → Submit URL for scanning
+- Query params also supported: `?url=https://example.com&visibility=public`
+- Returns scan UUID and result URLs for later retrieval
+
 All endpoints return JSON. Errors return HTTP 400 for missing/invalid input, HTTP 500 for API/internal errors.
 
 > [!TIP]
@@ -81,6 +87,9 @@ curl -X POST "http://localhost:7071/api/dns/resolve" -H "Content-Type: applicati
 # Whois examples
 curl "http://localhost:7071/api/whois?q=example.com"
 curl -X POST "http://localhost:7071/api/whois" -H "Content-Type: application/json" -d '{ "q": "8.8.8.8", "source": "rdap" }'
+
+# URLScan.io: submit URL for scanning
+curl -X POST "http://localhost:7071/api/urlscan/submit" -H "Content-Type: application/json" -d '{"url": "https://example.com", "visibility": "unlisted"}'
 ```
 
 ## Usage
@@ -113,6 +122,9 @@ func settings add ABUSEIPDB_API_KEY "your_abuseipdb_api_key_here"
 
 # AlienVault API key
 func settings add ALIENVAULT_API_KEY "your_alienvault_api_key_here"
+
+# URLScan.io API key
+func settings add URLSCAN_API_KEY "your_urlscan_api_key_here"
 ```
 
 Notes:
@@ -149,10 +161,11 @@ You can deploy using the Visual Studio Code Azure extension:
 
 ---
 
-## API Key Security (AbuseIPDB & AlienVault)
+## API Key Security (AbuseIPDB, AlienVault & URLScan.io)
 - The AbuseIPDB API key must be set as an environment variable: `ABUSEIPDB_API_KEY`.
 - The AlienVault API key must be set as an environment variable: `ALIENVAULT_API_KEY`.
-- For local development, add both to your `local.settings.json` under `Values` (do not commit this file).
+- The URLScan.io API key must be set as an environment variable: `URLSCAN_API_KEY`.
+- For local development, add all keys to your `local.settings.json` under `Values` (do not commit this file).
 - For production, set them as Application Settings in the Azure portal.
 
 ## Error Handling

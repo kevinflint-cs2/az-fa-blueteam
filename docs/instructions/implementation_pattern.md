@@ -72,8 +72,20 @@ Error
 - Keep `function_app.py` responsible for HTTP mapping and logging.
 
 ### Secrets and configuration
-- Do not hardcode API keys. Read them from environment variables. For local development use `local.settings.json` (ignored by git) or `func settings add`.
-- Common env var names in this project: `ABUSEIPDB_API_KEY`, `ALIENVAULT_API_KEY`.
+- Do not hardcode API keys. Read them from environment variables.
+- For local development:
+  - Non-secret environment variables are stored in `local.settings.json` (ignored by git).
+  - **Secret environment variables (API keys, tokens, etc.) must be added using `func settings add`** to keep them out of version control.
+  - Example: `func settings add ABUSEIPDB_API_KEY "your-api-key-here"`
+- Common env var names in this project: `ABUSEIPDB_API_KEY`, `ALIENVAULT_API_KEY`, `URLSCAN_API_KEY`.
+
+### Virtual environment
+- This project uses a Python virtual environment for dependency isolation.
+- **Always ensure the virtual environment is activated** before running Python commands, pip installations, or other commands that interact with Python packages.
+- To activate the virtual environment:
+  - In the dev container or local setup, use the appropriate activation command (e.g., `source .venv/bin/activate` or the path specified in your Azure Functions configuration).
+  - If using VS Code with Azure Functions extension, the extension typically handles this automatically via the `${config:azureFunctions.pythonVenv}` setting.
+- When running commands manually in the terminal, verify the virtual environment is active (look for the environment name in your shell prompt or check `which python`).
 
 ### Testing
 - Add unit tests under `tests/` named `test_<module>.py`.
