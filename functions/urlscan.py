@@ -62,9 +62,7 @@ def submit_url(url: str, visibility: str = "public") -> dict[str, Any]:
     try:
         response = requests.post(api_url, headers=headers, json=payload, timeout=timeout)
     except requests.exceptions.Timeout as exc:
-        raise RuntimeError(
-            f"URLScan.io API request timed out after {timeout} seconds"
-        ) from exc
+        raise RuntimeError(f"URLScan.io API request timed out after {timeout} seconds") from exc
     except requests.exceptions.RequestException as exc:
         raise RuntimeError(f"URLScan.io API request failed: {exc}") from exc
 
@@ -127,34 +125,26 @@ def get_result(uuid: str) -> dict[str, Any]:
     try:
         response = requests.get(api_url, headers=headers, timeout=timeout)
     except requests.exceptions.Timeout as exc:
-        raise RuntimeError(
-            f"URLScan.io API request timed out after {timeout} seconds"
-        ) from exc
+        raise RuntimeError(f"URLScan.io API request timed out after {timeout} seconds") from exc
     except requests.exceptions.RequestException as exc:
         raise RuntimeError(f"URLScan.io API request failed: {exc}") from exc
 
     # Check response status
     if response.status_code == 404:
-        raise RuntimeError(
-            "Scan not ready or not found. Please wait and try again."
-        )
+        raise RuntimeError("Scan not ready or not found. Please wait and try again.")
     elif response.status_code == 410:
         raise RuntimeError("Scan has been deleted.")
     elif response.status_code == 401:
         raise RuntimeError("URLScan.io API authentication failed. Check API key.")
     elif not response.ok:
         error_detail = response.text
-        raise RuntimeError(
-            f"URLScan.io API request failed: {response.status_code} {error_detail}"
-        )
+        raise RuntimeError(f"URLScan.io API request failed: {response.status_code} {error_detail}")
 
     # Parse and return response
     return cast(dict[str, Any], response.json())
 
 
-def search_scans(
-    query: str, size: int = 100, search_after: str | None = None
-) -> dict[str, Any]:
+def search_scans(query: str, size: int = 100, search_after: str | None = None) -> dict[str, Any]:
     """
     Search for scans on URLScan.io using ElasticSearch query syntax.
 
@@ -185,9 +175,7 @@ def search_scans(
     # Get API key from environment
     api_key = os.getenv("URLSCAN_API_KEY")
     if not api_key:
-        raise RuntimeError(
-            "URLScan.io API key not set in environment variable 'URLSCAN_API_KEY'."
-        )
+        raise RuntimeError("URLScan.io API key not set in environment variable 'URLSCAN_API_KEY'.")
 
     # Prepare request
     api_url = "https://urlscan.io/api/v1/search/"
@@ -208,9 +196,7 @@ def search_scans(
     try:
         response = requests.get(api_url, headers=headers, params=params, timeout=timeout)
     except requests.exceptions.Timeout as exc:
-        raise RuntimeError(
-            f"URLScan.io API request timed out after {timeout} seconds"
-        ) from exc
+        raise RuntimeError(f"URLScan.io API request timed out after {timeout} seconds") from exc
     except requests.exceptions.RequestException as exc:
         raise RuntimeError(f"URLScan.io API request failed: {exc}") from exc
 
