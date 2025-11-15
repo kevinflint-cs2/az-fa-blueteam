@@ -1,19 +1,19 @@
 # 🤖 **Automated Commit + Merge Workflow (with Copilot Auto-Merge)**
 
-* **Developer creates a feature branch**
+* **Github Copilot creates a feature branch**
 
-  * `git checkout -b feature/<change>`
+  * `git checkout -b feat/<change>`
 
-* **Developer stages and commits changes**
+* **Github Copilot stages and commits changes**
 
   * `git add -A`
   * `git commit -m "<conventional commit message>"`
 
-* **Developer pushes the branch**
+* **Github Copilot pushes the branch**
 
-  * `git push -u origin feature/<change>`
+  * `git push -u origin feat/<change>`
 
-* **Developer opens a Pull Request**
+* **Github Copilot opens a Pull Request**
 
   * GitHub automatically triggers:
 
@@ -49,7 +49,7 @@
 
 * **Automation deletes the feature branch**
 
-* **Developer syncs local environment**
+* **Github Copilot syncs local environment**
 
   ```
   git checkout main

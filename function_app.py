@@ -1,5 +1,6 @@
 import json
 import os
+from typing import Any
 
 import azure.functions as func
 
@@ -289,6 +290,117 @@ def urlscan_submit(req: func.HttpRequest) -> func.HttpResponse:
 
     try:
         result = urlscan.handle_request(payload)
+    except ValueError as ve:
+        error_obj = {"status": "error", "error": {"msg": str(ve)}}
+        return func.HttpResponse(
+            json.dumps(error_obj), status_code=400, mimetype="application/json"
+        )
+    except Exception as exc:
+        error_obj = {"status": "error", "error": {"msg": str(exc)}}
+        return func.HttpResponse(
+            json.dumps(error_obj), status_code=500, mimetype="application/json"
+        )
+
+    return func.HttpResponse(json.dumps(result), mimetype="application/json")
+
+
+# URLScan.io: result
+@app.route(route="urlscan/result", auth_level=func.AuthLevel.FUNCTION)
+def urlscan_result(req: func.HttpRequest) -> func.HttpResponse:
+    """
+    Azure Function HTTP trigger for retrieving URLScan.io scan results.
+    Expects 'uuid' as a query or JSON parameter.
+    """
+    uuid = req.params.get("uuid")
+
+    if not uuid:
+        try:
+            req_body = req.get_json()
+        except ValueError:
+            req_body = {}
+        uuid = uuid or req_body.get("uuid")
+
+    if not uuid:
+        error_obj = {"status": "error", "error": {"msg": "missing 'uuid' parameter"}}
+        return func.HttpResponse(
+            json.dumps(error_obj), status_code=400, mimetype="application/json"
+        )
+
+    # Build payload for module
+    payload = {"uuid": uuid}
+
+    try:
+        result = urlscan.handle_result_request(payload)
+    except ValueError as ve:
+        error_obj = {"status": "error", "error": {"msg": str(ve)}}
+        return func.HttpResponse(
+            json.dumps(error_obj), status_code=400, mimetype="application/json"
+        )
+    except RuntimeError as re:
+        error_msg = str(re)
+        # Map specific error messages to appropriate HTTP status codes
+        if "not ready or not found" in error_msg.lower():
+            status_code = 404
+        elif "deleted" in error_msg.lower():
+            status_code = 410
+        else:
+            status_code = 500
+        error_obj = {"status": "error", "error": {"msg": error_msg}}
+        return func.HttpResponse(
+            json.dumps(error_obj), status_code=status_code, mimetype="application/json"
+        )
+    except Exception as exc:
+        error_obj = {"status": "error", "error": {"msg": str(exc)}}
+        return func.HttpResponse(
+            json.dumps(error_obj), status_code=500, mimetype="application/json"
+        )
+
+    return func.HttpResponse(json.dumps(result), mimetype="application/json")
+
+
+# URLScan.io: search
+@app.route(route="urlscan/search", auth_level=func.AuthLevel.FUNCTION)
+def urlscan_search(req: func.HttpRequest) -> func.HttpResponse:
+    """
+    Azure Function HTTP trigger for searching URLScan.io scans.
+    Expects 'q' (query) as a query or JSON parameter.
+    Optional 'size' parameter: number of results (default: 100, max: 10000).
+    Optional 'search_after' parameter: pagination cursor.
+    """
+    q = req.params.get("q")
+    size = req.params.get("size")
+    search_after = req.params.get("search_after")
+
+    if not q:
+        try:
+            req_body = req.get_json()
+        except ValueError:
+            req_body = {}
+        q = q or req_body.get("q")
+        size = size or req_body.get("size")
+        search_after = search_after or req_body.get("search_after")
+
+    if not q:
+        error_obj = {"status": "error", "error": {"msg": "missing 'q' parameter"}}
+        return func.HttpResponse(
+            json.dumps(error_obj), status_code=400, mimetype="application/json"
+        )
+
+    # Build payload for module
+    payload: dict[str, Any] = {"q": q}
+    if size is not None:
+        try:
+            payload["size"] = int(size)
+        except (ValueError, TypeError):
+            error_obj = {"status": "error", "error": {"msg": "invalid 'size' parameter"}}
+            return func.HttpResponse(
+                json.dumps(error_obj), status_code=400, mimetype="application/json"
+            )
+    if search_after is not None:
+        payload["search_after"] = search_after
+
+    try:
+        result = urlscan.handle_search_request(payload)
     except ValueError as ve:
         error_obj = {"status": "error", "error": {"msg": str(ve)}}
         return func.HttpResponse(
