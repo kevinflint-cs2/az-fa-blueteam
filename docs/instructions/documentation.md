@@ -9,11 +9,11 @@
 
 ## 1. Documentation Scope
 
-The AI is responsible for creating and updating two documentation areas:
+The AI is responsible for creating and updating three documentation areas:
 
 ### A) Module Documentation
 
-* File: `./docs/[MODULENAME].md`
+* File: `./docs/modules/[MODULENAME].md`
 * Each function module in `./functions/` must have a matching documentation file.
 * Purpose: explain **what the module does, how it fits into the architecture, and how to use it**.
 * Include:
@@ -26,7 +26,21 @@ The AI is responsible for creating and updating two documentation areas:
   * Troubleshooting or known limitations (if applicable)
 * Keep it factual, not promotional.
 
-### B) Root README (`./README.md`)
+### B) Example Documentation
+
+* File: `./docs/examples/[MODULENAME]-curl.md`
+* Each HTTP endpoint must have a corresponding examples file.
+* Purpose: provide practical, copy-paste curl examples for common use cases.
+* Include:
+
+  * Multiple example requests (GET/POST, query params, JSON body)
+  * Example success responses with actual JSON
+  * Example error responses with explanations
+  * Notes about prerequisites (running host, API keys)
+  * Visibility/security recommendations where applicable
+* See `./docs/examples/whois-curl.md` as a reference template.
+
+### C) Root README (`./README.md`)
 
 * Focus on **how to use the endpoint(s)**, not internal architecture.
 * Update or rewrite sections to include:
@@ -72,5 +86,9 @@ The AI is responsible for creating and updating two documentation areas:
   * Key sections to be added
 * Ask for explicit approval before applying updates.
 * Once approved, write complete `.md` files ready for commit.
+* For each new endpoint, create **three** documentation files:
+  1. Module documentation in `./docs/modules/`
+  2. Example documentation in `./docs/examples/`
+  3. Update root `README.md`
 
 ---

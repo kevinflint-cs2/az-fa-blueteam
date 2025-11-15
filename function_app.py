@@ -3,6 +3,7 @@ import os
 
 import azure.functions as func
 
+from functions import urlscan
 from functions import whois as whois_module
 from functions.abuseipdb import check_ip, report_ip
 from functions.alienvault import submit_domain, submit_hash, submit_ip, submit_url
@@ -254,5 +255,49 @@ def whois_lookup(req: func.HttpRequest) -> func.HttpResponse:
             json.dumps(error_obj), status_code=500, mimetype="application/json"
         )
         return resp
+
+    return func.HttpResponse(json.dumps(result), mimetype="application/json")
+
+
+# URLScan.io: submit
+@app.route(route="urlscan/submit", auth_level=func.AuthLevel.FUNCTION)
+def urlscan_submit(req: func.HttpRequest) -> func.HttpResponse:
+    """
+    Azure Function HTTP trigger for submitting a URL to URLScan.io.
+    Expects 'url' as a query or JSON parameter.
+    Optional 'visibility' parameter: 'public', 'unlisted', or 'private'.
+    """
+    url = req.params.get("url")
+    visibility = req.params.get("visibility")
+
+    if not url or not visibility:
+        try:
+            req_body = req.get_json()
+        except ValueError:
+            req_body = {}
+        url = url or req_body.get("url")
+        visibility = visibility or req_body.get("visibility", "public")
+
+    if not url:
+        error_obj = {"status": "error", "error": {"msg": "missing 'url' parameter"}}
+        return func.HttpResponse(
+            json.dumps(error_obj), status_code=400, mimetype="application/json"
+        )
+
+    # Build payload for module
+    payload = {"url": url, "visibility": visibility}
+
+    try:
+        result = urlscan.handle_request(payload)
+    except ValueError as ve:
+        error_obj = {"status": "error", "error": {"msg": str(ve)}}
+        return func.HttpResponse(
+            json.dumps(error_obj), status_code=400, mimetype="application/json"
+        )
+    except Exception as exc:
+        error_obj = {"status": "error", "error": {"msg": str(exc)}}
+        return func.HttpResponse(
+            json.dumps(error_obj), status_code=500, mimetype="application/json"
+        )
 
     return func.HttpResponse(json.dumps(result), mimetype="application/json")
