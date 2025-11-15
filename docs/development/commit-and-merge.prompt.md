@@ -120,6 +120,50 @@ Detailed description of changes...
 - Key point 3"
 ```
 
+**If commit fails due to detect-secrets:**
+
+Pre-commit hooks will block commits containing potential secrets. When this occurs:
+
+1. **Review the detected secret:**
+   - Location: File path and line number displayed in error
+   - Type: Secret type identified (e.g., "Hex High Entropy String", "Secret Keyword")
+
+2. **Identify the secret:**
+   - Read the flagged line in the file
+   - Determine what was detected (API key, UUID, MongoDB ID, etc.)
+
+3. **Explain why it's a false positive:**
+   - Example: "MongoDB ObjectId in example JSON response"
+   - Example: "Placeholder API key 'your-key-here' in documentation"
+   - Example: "Mock UUID in test fixture"
+   - Example: "High entropy hex string in sample data"
+
+4. **Request approval:**
+   ```
+   Detected Secret Analysis:
+   
+   File: [file-path]
+   Line: [line-number]
+   Type: [secret-type]
+   Content: [actual string]
+   
+   Assessment: This is a false positive because [explanation]
+   
+   Approve adding to baseline? (yes/no)
+   ```
+
+5. **After approval, add pragma comment:**
+   ```bash
+   # Add inline comment to mark as safe
+   # Example: "your-key-here"  # pragma: allowlist secret
+   
+   # Re-stage and commit
+   git add -A
+   git commit -m "[same commit message]"
+   ```
+
+**Never bypass without approval** - Real secrets must never be committed.
+
 ### Step 3: Push and Create Auto-Merge PR
 
 Push branch and create pull request with auto-merge enabled:
@@ -205,9 +249,9 @@ GitHub automatically executes the following workflow:
    ```
 5. CI automatically re-runs and auto-merges when passing
 
-### Step 5: Sync Local Environment
+### Step 5: Sync Local Environment (MANDATORY)
 
-After auto-merge completes (monitor PR page for completion):
+After auto-merge completes (monitor PR page for completion), **you MUST execute these commands** to complete Phase 8:
 
 ```bash
 # Switch to main branch
@@ -216,6 +260,14 @@ git checkout main
 # Pull latest changes (includes your squashed commit)
 git pull origin main
 
+# VERIFICATION REQUIRED: Confirm local matches remote
+git fetch origin
+if ! git diff main origin/main --exit-code >/dev/null 2>&1; then
+  echo "ERROR: Local main diverged from origin/main"
+  echo "Run: git log main...origin/main --oneline"
+  exit 1
+fi
+
 # Verify merge
 git log --oneline -5
 
@@ -223,10 +275,20 @@ git log --oneline -5
 git branch -d feat/[feature-name]
 ```
 
-**Verification:**
-- Your commit appears in `main` history
-- Feature branch deleted on GitHub
-- Local environment synced with remote
+**Critical Requirements:**
+- ✅ Verification command MUST pass (no diff between main and origin/main)
+- ✅ Your commit appears in `main` history
+- ✅ Feature branch deleted on GitHub
+- ✅ Local environment synced with remote
+
+**If Verification Fails:**
+- DO NOT continue with Phase 1 of next feature
+- Run: `git log --all --graph --oneline` to see branch history
+- If local has commits not on origin: Branch divergence occurred
+- Reset to origin: `git reset --hard origin/main` (saves work, resets branch)
+- Contact user if unsure how branches diverged
+
+**Phase 8 is INCOMPLETE until this step executes successfully.**
 
 ## Conventional Commit Examples
 
