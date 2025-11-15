@@ -29,7 +29,11 @@ Accepts domain names either as a query parameter (comma-separated) or in the JSO
 
 ## Example Requests
 
-### POST with JSON body
+See `docs/examples/dns-resolver-curl.md` for comprehensive curl examples.
+
+### Quick Examples
+
+#### POST with JSON body
 ```bash
 curl -X POST "http://localhost:7071/api/dns/resolve" \
   -H "Content-Type: application/json" \
