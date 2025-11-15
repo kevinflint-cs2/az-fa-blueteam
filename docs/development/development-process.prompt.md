@@ -38,6 +38,37 @@ Guide GitHub Copilot through an eight-phase development process that enforces de
 
 **Objective:** Internalize project standards before proposing solutions.
 
+**PREREQUISITE: Verify Main Branch Sync**
+
+Before reviewing patterns, **MUST verify** local `main` is synced with `origin/main`:
+
+```bash
+# Checkout and update main
+git checkout main
+git fetch origin
+
+# Check for divergence
+if [ "$(git rev-list --count main...origin/main)" -ne 0 ]; then
+  echo "ERROR: Local main diverged from origin/main"
+  echo "Commits on origin not on local: $(git rev-list --count origin/main ^main)"
+  echo "Commits on local not on origin: $(git rev-list --count main ^origin/main)"
+  git log main...origin/main --oneline --graph
+  exit 1
+fi
+
+# Pull if behind
+git pull origin main
+```
+
+**If Sync Check Fails:**
+- DO NOT proceed to pattern review
+- Local main has diverged (likely Phase 8 Step 5 was skipped)
+- Run: `git log --all --graph --oneline` to visualize branches
+- Reset to origin: `git reset --hard origin/main` (if safe to discard local commits)
+- Ask user if unsure about branch history
+
+**After Sync Verified:**
+
 1. Read and confirm understanding of:
    - `./docs/development/implementation-pattern.prompt.md`
    - `./docs/development/python-coding.prompt.md`
