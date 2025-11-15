@@ -12,11 +12,7 @@ It enforces a **structured, review-first process** where all design, implementat
 ### Requirements
 
 * The AI must **not write any code** in this phase.
-* The AI must first read and internalize:
-
-  * `./instructions/implementation_pattern.md`
-  * `./instructions/python_instructions.md`
-
+* The AI must first read and internalize: `./instructions/implementation_pattern.md`
 * Confirm that you have read the md files
 
 ### Status: ✅ COMPLETE

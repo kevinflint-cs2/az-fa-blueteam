@@ -438,11 +438,7 @@ def test_search_scans_with_pagination():
             mock_get.return_value.ok = True
             mock_get.return_value.json.return_value = mock_response
 
-            result = urlscan.search_scans(
-                "domain:example.com",
-                size=50,
-                search_after="12345,abcde"
-            )
+            result = urlscan.search_scans("domain:example.com", size=50, search_after="12345,abcde")
 
             assert result["has_more"] is True
 

@@ -14,5 +14,5 @@
       ]
     }
   },
-  "postCreateCommand": ""
+  "postCreateCommand": "bash .devcontainer/setup.sh"
 }
